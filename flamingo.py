@@ -15,7 +15,7 @@ class Flamingo:
         self.led_strip1 = Pin(led_strip1, Pin.OUT)
         self.led_strip2 = Pin(led_strip2, Pin.OUT)
         
-        self.battery_led.value(0)
+        self.battery_led.value(1)
         
         self.power_switch = Pin(power_switch, Pin.IN)
         esp32.wake_on_ext0(pin = self.power_switch, level = esp32.WAKEUP_ANY_HIGH)
@@ -35,11 +35,16 @@ class Flamingo:
         
     
     async def flashLed(self, json):
-        json = ujson.loads(json)
+        try:
+            json = ujson.loads(json)
+            on_for = int(json['on_for'])
+        except Exception:
+            on_for = 1000
+            
         self.led_strip1.value(1)
         self.led_strip2.value(1)
         print("strips on")
-        await asyncio.sleep_ms(int(json['on_for']))
+        await asyncio.sleep_ms(on_for)
         self.led_strip1.value(0)
         self.led_strip2.value(0)
         print("strips off")
