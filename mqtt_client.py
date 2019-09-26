@@ -4,6 +4,7 @@ import uasyncio as asyncio
 from flamingo import Flamingo
 from machine import reset
 
+
 # Subscription callback
 def sub_cb(topic, msg):
     loop.create_task(
@@ -21,7 +22,7 @@ async def heartbeat():
 
 async def batteryProcess():
     while True:
-        if(flamingo.batteryCheck() < flamingo.battery_threshold):
+        if(flamingo.battery_level < flamingo.battery_threshold):
             print("battery warning, on")
             await asyncio.sleep_ms(150)
             flamingo.toggleLed(flamingo.battery_led)
@@ -30,22 +31,22 @@ async def batteryProcess():
         else:
             print("battery ok!")
             await asyncio.sleep(60)
-            
+            flamingo.battery_level = flamingo.batteryCheck()
+
 
 async def wifi_han(state):
     global wifi_attempts
     global wifi_max_attempts
     machine_config['wifi_led'](not state)
     print('Wifi is ', 'up' if state else 'down')
-    
+
     # Restart after x attempts
     if not state:
         if (wifi_attempts >= wifi_max_attempts):
             reset()
         wifi_attempts += 1
     await asyncio.sleep(3)
-        
-    
+
 
 async def conn_han(client):
     await client.subscribe(app_config['sub_topic'], 1)
@@ -86,8 +87,9 @@ try:
     loop.run_until_complete(main(client))
 except KeyboardInterrupt:
     client.close()
-    print("Bye")    
+    print("Bye")
 except OSError as e:
+    print(e)
     reset()
 finally:
     client.close()

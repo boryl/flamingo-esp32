@@ -1,4 +1,3 @@
-from sys import platform    
 from machine import Pin
 
 try:
@@ -6,11 +5,14 @@ try:
 except Exception:
     config = {}
 
+
 def ledfunc(pin):
     pin = pin
+
     def func(v):
         pin(not v)  # Active low on ESP8266
     return func
+
 
 # MQTT config
 config['server'] = ''
@@ -31,5 +33,5 @@ machine_config['battery_led'] = 26
 machine_config['led_strip1'] = 15
 machine_config['led_strip2'] = 33
 machine_config['power_switch'] = 14
-machine_config['wifi_led'] = ledfunc(Pin(25, Pin.OUT, value = 0))  # Red LED for WiFi fail/not ready yet
+machine_config['wifi_led'] = ledfunc(Pin(25, Pin.OUT, value=0))
 machine_config['battery_threshold'] = 3.6
