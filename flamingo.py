@@ -5,19 +5,19 @@ import esp32
 
 class Flamingo:
 
-    def __init__(self, battery_led, battery_threshold, power_switch, led_strip1, led_strip2):
+    def __init__(self, machine_config):
         self.battery_reader = ADC(Pin(35))
         self.battery_reader.atten(ADC.ATTN_11DB)
-        self.battery_threshold = battery_threshold
-        self.battery_led = Pin(battery_led, Pin.OUT)
+        self.battery_threshold = machine_config['battery_threshold']
+        self.battery_led = Pin(machine_config['battery_led'], Pin.OUT)
         self.battery_level = self.batteryCheck()
         
-        self.led_strip1 = Pin(led_strip1, Pin.OUT)
-        self.led_strip2 = Pin(led_strip2, Pin.OUT)
+        self.led_strip1 = Pin(machine_config['led_strip1'], Pin.OUT)
+        self.led_strip2 = Pin(machine_config['led_strip2'], Pin.OUT)
         
         self.battery_led.value(1)
         
-        self.power_switch = Pin(power_switch, Pin.IN)
+        self.power_switch = Pin(machine_config['power_switch'], Pin.IN)
         esp32.wake_on_ext0(pin = self.power_switch, level = esp32.WAKEUP_ANY_HIGH)
     
     def batteryCheck(self):

@@ -1,5 +1,5 @@
 from mqtt_as import MQTTClient, config
-from config import app_config
+from config import app_config, machine_config
 import uasyncio as asyncio
 from flamingo import Flamingo
 from machine import reset
@@ -21,7 +21,7 @@ async def heartbeat():
 
 async def batteryProcess():
     while True:
-        if(flamingo.batteryCheck() < app_config['battery_threshold']):
+        if(flamingo.batteryCheck() < flamingo.battery_threshold):
             print("battery warning, on")
             await asyncio.sleep_ms(150)
             flamingo.toggleLed(flamingo.battery_led)
@@ -35,7 +35,7 @@ async def batteryProcess():
 async def wifi_han(state):
     global wifi_attempts
     global wifi_max_attempts
-    app_config['wifi_led'](not state)
+    machine_config['wifi_led'](not state)
     print('Wifi is ', 'up' if state else 'down')
     
     # Restart after x attempts
@@ -68,11 +68,11 @@ config['connect_coro'] = conn_han
 config['clean'] = True
 
 # Set up client
-MQTTClient.DEBUG = True  # Optional
+MQTTClient.DEBUG = False  # Optional
 client = MQTTClient(config)
 
 # Set up Flamingo
-flamingo = Flamingo(app_config['battery_led'], app_config['battery_threshold'], app_config['power_switch'], app_config['led_strip1'], app_config['led_strip2'])
+flamingo = Flamingo(machine_config)
 
 # Set up async
 loop = asyncio.get_event_loop()
